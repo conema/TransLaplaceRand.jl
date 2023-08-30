@@ -4,6 +4,7 @@ authors = ["Emanuele Concas"]
 version = "1.0.0-DEV"
 
 [deps]
+Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 InverseLaplace = "e24f45a5-4790-5a38-8b2c-33d770a4e70f"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 Roots = "f2b01f46-fcfa-551c-844a-d8ac1e96c665"
