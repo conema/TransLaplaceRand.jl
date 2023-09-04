@@ -20,7 +20,7 @@ function Roots.init_state(::NewtonBracket, F::Roots.Callable_Function, x)
     lb, ub = adjust_bracket(x[2:3])
 
     if !(lb < xn1 < ub)
-        xn1 = (ub-lb)*0.5
+        xn1 = (ub+lb)*0.5
     end
 
     fxn1, Δ = F(xn1)
@@ -46,10 +46,11 @@ function Roots.update_state(
     # try Newton, if out of bounds use bisection
     # Newton step
     t = o.xn1 - o.Δ
+    lb, ub = adjust_bracket((o.lb, o.ub))
 
     # Bisection step
-    if !(o.lb < t < o.ub)
-        t = (o.ub-o.lb)*0.5
+    if !(lb < t < ub)
+        t = (ub+lb)*0.5
     end
 
     #Δ = cdf/pdf
@@ -61,6 +62,7 @@ function Roots.update_state(
     else
         @set! o.ub = t
     end
+
     lb, ub = adjust_bracket((o.lb, o.ub))
     @set! o.lb = lb
     @set! o.ub = ub

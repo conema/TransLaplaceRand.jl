@@ -3,8 +3,8 @@ function rlaptrans(n::Integer, ltpdf::Function, maxiters::Integer=500, x0::Numbe
     U = sort(rand(Uniform(0, 1), n))
 
     # Definition of inverted pdf and cdf
-    pdf = GWR(t -> real(ltpdf(t)), 15)
-    cdf = GWR(t -> real(ltpdf(t)/t), 15)
+    cdf = Fourier_series(t -> ltpdf(t)/t)
+    pdf = Fourier_series(t -> ltpdf(t))
 
     # Calculate first pdf and cdf to be use as starting value for root algorithm
     t0 = x0
@@ -25,8 +25,8 @@ function rlaptrans(n::Integer, ltpdf::Function, maxiters::Integer=500, x0::Numbe
     lb = 0.0
     ub = ti
 
-    pdf2(t,u) = pdf(t)
-    cdf2(t,u) = cdf(t)-u
+    pdf2(t, u) = pdf(t)
+    cdf2(t, u) = cdf(t)-u
 
     xrand = Vector{Float64}(undef, n)
 
@@ -37,8 +37,8 @@ function rlaptrans(n::Integer, ltpdf::Function, maxiters::Integer=500, x0::Numbe
             NewtonBracket(),
             p=u;
             verbose=false,
-            xatol=10e-5,
-            atol=10e-5
+            xatol=10e-7,
+            atol=10e-7
         )
 
         lb = ran

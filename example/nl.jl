@@ -1,6 +1,7 @@
 using TransLaplaceRand: rlaptrans
 using Distributions
 using FLoops
+using BenchmarkTools
 
 function generate_z(draws, lambda)
     z_pdf(t) = exp(-t^lambda)
@@ -72,11 +73,14 @@ utilities = [
 nest = 1
 product = 1
 
-zs = generate_z_nests(draws, lambdas)
+@profview generate_z(draws, lambdas[1])
+@benchmark generate_z($draws, $lambdas[1])
 
 println(
     calculate_prob_product_closed(utilities, lambdas, nest, product)
 )
+
+zs = generate_z_nests(draws, lambdas)
 
 println(
     calculate_prob_product_max(draws, zs, utilities, lambdas, nest, product) 
