@@ -2,5 +2,6 @@
 BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 FLoops = "cc61a311-1640-44b5-9fba-1b764f453329"
+InverseLaplace = "e24f45a5-4790-5a38-8b2c-33d770a4e70f"
 Profile = "9abbd945-dff8-562f-b5e8-e1ebf5ef1b79"
 TransLaplaceRand = "c8d6b21f-694d-4cce-9832-80364cd16504"

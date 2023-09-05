@@ -25,18 +25,18 @@ function rlaptrans(n::Integer, ltpdf::Function, maxiters::Integer=500, x0::Numbe
     lb = 0.0
     ub = ti
 
-    pdf2(t, u) = pdf(t)
-    cdf2(t, u) = cdf(t)-u
 
     xrand = Vector{Float64}(undef, n)
 
     for (i, u) in enumerate(U)
         ran = find_zero(
-            (cdf2, pdf2),
+            (
+                (t,u) -> cdf(t)-u,
+                (t,u) -> pdf(t)
+            ),
             (t0, lb, ub),
             NewtonBracket(),
             p=u;
-            verbose=false,
             xatol=10e-7,
             atol=10e-7
         )

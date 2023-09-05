@@ -11,26 +11,41 @@ struct NewtonBracketState{T,S} <: AbstractUnivariateZeroState{T,S}
     fxn1::S
 end
 
-function Roots.init_state(::NewtonBracket, F::Roots.Callable_Function, x)
-    # Starting point for Newton
-    xn0 = float(first(x[1]))
-    fxn0, Δ = F(xn0)
+function _bisection(lb::Real, x::Real, ub::Real)
+    if !(lb < x < ub)
+        x = (ub+lb)*0.5
+    end
+
+    return x
+end
+
+function _update_brackets(lb::Real, fx::Real, x::Real, ub::Real)
+    # cdf <= u
+    fx ≤ 0 ? lb = x : ub = x
+
+    return adjust_bracket((lb, ub))
+end
+
+function _newton_with_bisection(fxn0::Real, xn0::Real, F::Roots.Callable_Function, lb::Real, ub::Real, Δ::Real)
+    lb, ub = _update_brackets(lb, fxn0, xn0, ub)
+
     xn1 = xn0 - Δ
 
-    lb, ub = adjust_bracket(x[2:3])
-
-    if !(lb < xn1 < ub)
-        xn1 = (ub+lb)*0.5
-    end
+    xn1 = _bisection(lb, xn1, ub)
 
     fxn1, Δ = F(xn1)
 
-    # cdf <= u
-    if fxn1 <= 0
-        lb = xn1
-    else
-        ub = xn1
-    end
+    return xn0, xn1, Δ, lb, ub, fxn0, fxn1
+end
+
+function Roots.init_state(::NewtonBracket, F::Roots.Callable_Function, x)
+    # Starting point for Newton
+    x0 = float(first(x[1]))
+    lb = float(first(x[2]))
+    ub = float(first(x[3]))
+
+    fxn0, Δ = F(x0)
+    xn0, xn1, Δ, lb, ub, fxn0, fxn1 = _newton_with_bisection(fxn0, x0, F, lb, ub, Δ)
 
     NewtonBracketState(xn0, xn1, Δ, lb, ub, fxn0, fxn1)
 end
@@ -45,33 +60,23 @@ function Roots.update_state(
 ) where {T,S}
     # try Newton, if out of bounds use bisection
     # Newton step
-    t = o.xn1 - o.Δ
-    lb, ub = adjust_bracket((o.lb, o.ub))
+    xn0, xn1, Δ, lb, ub, fxn0, fxn1 = _newton_with_bisection(
+        o.fxn1,
+        o.xn1,
+        F,
+        o.lb,
+        o.ub,
+        o.Δ
+    )
 
-    # Bisection step
-    if !(lb < t < ub)
-        t = (ub+lb)*0.5
-    end
-
-    #Δ = cdf/pdf
-    cdf, Δ = F(t)
-
-    # cdf <= u
-    if cdf <= 0
-        @set! o.lb = t
-    else
-        @set! o.ub = t
-    end
-
-    lb, ub = adjust_bracket((o.lb, o.ub))
     @set! o.lb = lb
     @set! o.ub = ub
 
     @set! o.xn0 = o.xn1
-    @set! o.xn1 = t
+    @set! o.xn1 = xn1
     @set! o.Δ = Δ
     @set! o.fxn0 = o.fxn1
-    @set! o.fxn1 = cdf
+    @set! o.fxn1 = fxn1
 
     return o, false
 end
