@@ -69,14 +69,14 @@ function Roots.update_state(
         o.Δ
     )
 
-    @set! o.lb = lb
-    @set! o.ub = ub
+    @reset o.lb = lb
+    @reset o.ub = ub
 
-    @set! o.xn0 = o.xn1
-    @set! o.xn1 = xn1
-    @set! o.Δ = Δ
-    @set! o.fxn0 = o.fxn1
-    @set! o.fxn1 = fxn1
+    @reset o.xn0 = o.xn1
+    @reset o.xn1 = xn1
+    @reset o.Δ = Δ
+    @reset o.fxn0 = o.fxn1
+    @reset o.fxn1 = fxn1
 
     return o, false
 end
